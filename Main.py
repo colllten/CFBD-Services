@@ -2,13 +2,16 @@ import csv
 import re
 import cfbd
 import json
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import storage
 
 configuration = cfbd.Configuration()
-configuration.api_key['Authorization'] = 'VTB63JmasppqSnWzLNjrK+duDxjYwrSGWoo2a4z+HQjzkUeUg5cPpPNNPVz0uw6L'
+configuration.api_key['Authorization'] = os.getenv("CFBD_API_KEY")
 configuration.api_key_prefix['Authorization'] = 'Bearer'
 
 offensive_positions = ["QB", "RB", "WR", "PK", "P", "TE"]
