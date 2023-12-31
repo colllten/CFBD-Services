@@ -21,6 +21,10 @@ offensive_positions = ["QB", "RB", "WR", "PK", "P", "TE"]
 
 
 def main():
+    upload_b1g_rosters(2023)
+
+
+def upload_b1g_rosters(year: int):
     # Get all teams in B1G
     b1g_teams = get_teams_in_conference(conference="B1G")
 
@@ -31,7 +35,7 @@ def main():
 
     # Go through each team's roster and get only offensive players
     for team_name in b1g_names:
-        team_roster = get_team_roster(team=team_name, year=2023)
+        team_roster = get_team_roster(team=team_name, year=year)
 
         # Filter the roster to only offensive positions
         offensive_team_roster = get_offensive_players_from_roster(roster=team_roster)
@@ -40,7 +44,7 @@ def main():
         print(f"Writing {team_name}'s players...")
         for player in offensive_team_roster:
             player = convert_player_to_map(player)
-            db.collection("2023_PLAYERS").document(str(player["id"])).set(player)
+            db.collection(f"{year}_PLAYERS").document(str(player["id"])).set(player)
         print("All B1G offensive players have been written to Firestore!")
 
 
