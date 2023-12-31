@@ -1,14 +1,21 @@
-import re
 import cfbd
-import json
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Set up CFBD API
 configuration = cfbd.Configuration()
 configuration.api_key['Authorization'] = os.getenv("CFBD_API_KEY")
 configuration.api_key_prefix['Authorization'] = 'Bearer'
+
+# Set up Firebase API
+cred = credentials.Certificate("b1g-fantasy-football-firebase-adminsdk-yg8ju-73d5d2b292.json")
+app = firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 offensive_positions = ["QB", "RB", "WR", "PK", "P", "TE"]
 
@@ -16,6 +23,7 @@ offensive_positions = ["QB", "RB", "WR", "PK", "P", "TE"]
 def main():
     # Get all teams in B1G
     b1g_teams = get_teams_in_conference(conference="B1G")
+
     # Get all B1G team names
     b1g_names = []
     for team in b1g_teams:
@@ -24,11 +32,16 @@ def main():
     # Go through each team's roster and get only offensive players
     for team_name in b1g_names:
         team_roster = get_team_roster(team=team_name, year=2023)
+
         # Filter the roster to only offensive positions
         offensive_team_roster = get_offensive_players_from_roster(roster=team_roster)
-        # Write each player to Firebase
-        for player in offensive_team_roster:
 
+        # Write each player to Firebase
+        print(f"Writing {team_name}'s players...")
+        for player in offensive_team_roster:
+            player = convert_player_to_map(player)
+            db.collection("2023_PLAYERS").document(str(player["id"])).set(player)
+        print("All B1G offensive players have been written to Firestore!")
 
 
 def get_teams_in_conference(conference: str) -> [cfbd.Team]:
@@ -59,6 +72,20 @@ def get_offensive_players_from_roster(roster: [cfbd.Player]) -> [cfbd.Player]:
         if player.position in offensive_positions:
             offensive_players.append(player)
     return offensive_players
+
+
+def convert_player_to_map(player: cfbd.Player):
+    player_map = {}
+    player_map.update({"id": player.id})
+    player_map.update({"first_name": player.first_name})
+    player_map.update({"last_name": player.last_name})
+    player_map.update({"team": player.team})
+    player_map.update({"height": player.height})
+    player_map.update({"weight": player.weight})
+    player_map.update({"jersey": player.jersey})
+    player_map.update({"position": player.position})
+    return player_map
+
 
 
 if __name__ == "__main__":
