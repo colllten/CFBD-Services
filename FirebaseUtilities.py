@@ -2,20 +2,18 @@ import cfbd
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
-import os
 from dotenv import load_dotenv
+
+from CFBD_Configuration import CFBD_Services
+from Firebase_Utilities import Firestore_Configuration
 
 load_dotenv()
 
 # Set up CFBD API
-configuration = cfbd.Configuration()
-configuration.api_key['Authorization'] = os.getenv("CFBD_API_KEY")
-configuration.api_key_prefix['Authorization'] = 'Bearer'
+configuration = CFBD_Services.configure_cfbd()
 
 # Set up Firebase API
-cred = credentials.Certificate("b1g-fantasy-football-firebase-adminsdk-yg8ju-73d5d2b292.json")
-app = firebase_admin.initialize_app(cred)
-db = firestore.client()
+db = Firestore_Configuration.configure_firestore()
 
 offensive_positions = ["QB", "RB", "WR", "PK", "P", "TE"]
 
