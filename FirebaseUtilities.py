@@ -2,6 +2,7 @@ import cfbd
 from dotenv import load_dotenv
 
 from CFBD_Configuration import CFBD_Services
+from CFBD_Configuration import Stat_Retrieval
 from Firebase_Utilities import Firestore_Configuration
 
 load_dotenv()
@@ -16,7 +17,9 @@ offensive_positions = ["QB", "RB", "WR", "PK", "P", "TE"]
 
 
 def main():
-    upload_b1g_rosters(2023)
+    # upload_b1g_rosters(2023)
+
+    Stat_Retrieval.get_players_stats(2023, 1, "Purdue")
 
 
 def upload_b1g_rosters(year: int):
